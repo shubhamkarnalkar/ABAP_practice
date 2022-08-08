@@ -1,53 +1,48 @@
-REPORT zsn_oops_1.
+REPORT zsn_oops_2.
 
-*its a general practice to define the attr under private or protected sectin
-*and methods under public section
-*attrbutes can be accessed only by the methods in the calss
+*methods: importing, exporting, changing, returning
+
 CLASS lcl_emp DEFINITION.
 PUBLIC SECTION.
-METHODS : getemp,
-          setemp.
+METHODS : setemp IMPORTING i_empno type i
+                  " i_ename(20) type c OPTIONAL "err, size declaration iss
+                    i_ename type c OPTIONAL
+                    i_design TYPE c DEFAULT 'Employee',
+
+          getemp.
+
 PROTECTED SECTION.
 data : empno TYPE i,
        ename TYPE c LENGTH 20,
-       empdesign(25) type c.
+       edesign TYPE c LENGTH 20.
 
 ENDCLASS.
 
 CLASS lcl_emp IMPLEMENTATION.
-
 METHOD getemp.
- empno = 12.
- ename = 'Humayu'.
- empdesign = 'Employee'.
-ENDMETHOD. "/getemp
+WRITE : / empno, ename, edesign.
+ENDMETHOD. "/getemp-method
 
 METHOD setemp.
-*WRITE : / me->empno, me->ename, me->empdesign. or
-WRITE : empno, ename, empdesign.
-*me is an implicitly created object
-* me refers to the particular object.
-ENDMETHOD. "/setemp
-
+empno = i_empno.
+ename = i_ename.
+edesign = i_design.
+ENDMETHOD. "/setemp-method
 ENDCLASS.
 
-START-OF-SELECTION. "define it before defining the object
-*problem comes if you don't define start of selection event
-DATA ob1 TYPE REF TO lcl_emp.
-CREATE OBJECT ob1.
-"*CALL METHOD ob1->getemp.
-"or
-ob1->getemp(  ).
-ob1->setemp(  ).
+START-OF-SELECTION.
 
-*you can transfer the data from one object to another
-uline.
-WRITE / 'New object ob2'.
-data ob2 TYPE REF TO lcl_emp.
-CREATE OBJECT ob2.
-ob2 = ob1.
-"above the data of ob1 is transfered to ob2.
+*crate an object
+data ob1 TYPE REF TO lcl_emp.
+create object ob1.
 
-
-
-
+PARAMETERs : p_empno TYPE i,
+             p_ename TYPE c LENGTH 20,
+             p_design TYPE c LENGTH 20.
+BREAK-POINT.
+call method ob1->setemp
+EXPORTING
+ i_empno = p_empno
+ i_ename = p_ename
+ i_design = p_design.
+call method ob1->getemp.
